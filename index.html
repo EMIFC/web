@@ -497,7 +497,8 @@
             border-radius: 20px;
         }
 
-        .content-wrapper img {
+        .content-wrapper img,
+        .content-wrapper video {
             cursor: zoom-in;
         }
 
@@ -561,7 +562,7 @@
         <button class="lightbox-close" id="lightboxClose">&times;</button>
         <button class="lightbox-nav lightbox-prev" id="lightboxPrev">‹</button>
         <div class="lightbox-content">
-            <img class="lightbox-image" id="lightboxImage" src="" alt="放大查看">
+            <img class="lightbox-image" id="lightboxImage" src="" alt="zoom">
         </div>
         <button class="lightbox-nav lightbox-next" id="lightboxNext">›</button>
         <div class="lightbox-counter" id="lightboxCounter"></div>
@@ -583,7 +584,7 @@
            
             <ul class="portfolio-list" id="portfolioList">
                 <li class="portfolio-item active" 
-                    data-images='["img/land04.png", "img/land06.png", "/Users/lixt/Documents/portfolio_web/img/land08.png"]' 
+                    data-images='["img/land04.png", "img/land06.png", "img/land08.png"]' 
                     data-title="Bio" 
                     data-desc="Li Xiaotong (b.1995, Guangzhou, China) is an artist, filmmaker and researcher currently based in Eindhoven, the Netherlands.
                     <br>Graduated from Design Academy Eindhoven, with experience in UI design and film production, Li's research-based practice examines technological systems through structural analysis and moving image.
@@ -601,13 +602,12 @@
                 </li>
 
                 <li class="portfolio-item" 
-                    data-images='["img/land04.png", "/img/p1_01.gif", "/img/research_map.jpg", "img/land02.png", "TEXT_BLOCK","SLIDER","TEXT_BLOCK_2"]' 
+                    data-images='["img/land04.png", "img/p1_01.gif", "img/p1_03.jpg", "img/land02.png", "TEXT_BLOCK","SLIDER","TEXT_BLOCK_2"]' 
                     data-slider='["img/p1_05.JPG","img/p1_06.JPG","img/p1_07.JPG"]'
                     data-title="Land Tells by Default: on simulation, on war games, and the myth of neutrality " 
-                    data-text="Beneath the surface of the 'neutral' default map of simulation war games lies an engineered silence. <br>This essay film investigates this phenomenon within Digital Combat Simulation, a digital environment used both for leisure gaming and military training. From the abstract squares of Kriegsspiel to today's detailed simulations, the film examines how the quest for neutrality has evolved alongside war technologies.
+                    data-text="Beneath the surface of the 'neutral' default map of simulation war games lies an engineered silence. <br>This essay film investigates this phenomenon within Digital Combat Simulator, a digital environment used both for leisure gaming and military training. From the abstract squares of Kriegsspiel to today's detailed simulations, the film examines how the quest for neutrality has evolved alongside war technologies.
                              <br>The project critiques how DCS's default map removes ideological or emotionally charged elements and crafts objects that appear functional and culturally unreadable, attempting to give the context of war an appearance of objectivity and ethical distance. Using the game environment as research method, the film questions whether anything can remain truly neutral within a totality that is preset for combat.
                              Through a blend of live footage and screen captures of the game world, the film explores the sensory boundaries of digital simulation. It challenges how objects evoke shifting memories and emotions while remaining unreadable and untouchable."
-                    
                     data-desc="Essay Video | 14min | 2025  <br><br><br>Exhibitions and Screenings<br> 2025 Dutch Design Week Design Academy Eindhoven Graduation Show">
                 </li>
                 <li class="portfolio-item" 
@@ -618,9 +618,37 @@
                     <p>数字艺术 · 2023</p>
                 </li>
                 <li class="portfolio-item" 
-                    data-images='["img/p2_03.gif", "img/p2_02.jpeg", "img/p2_01.gif"]' 
+                    data-images='["img/p2_03.gif", "img/p2_02.jpeg", "img/p2_04.mp4", "img/p2_06.mp4","TEXT_BLOCK", "img/p2_05.mp4"]' 
+                    data-text="This project emerges from an inquiry into the invisible infrastructures
+                               that hold and transmit data-systems that shape daily
+                               life yet remain beyond sensory reach. Beginning from a curiosity
+                               about where data actually resides, the journey leads to the Dutch
+                               landing point of Atlantic Crossing-1 (AC-1), a transatlantic
+                               submarine cable connecting the Netherlands to the wider world.
+                               Standing on the beach, like many tourists, one gazes out at the
+                               ocean—the portal of the internet, and finds no signs or monuments
+                               marking its presence. It's numerous constructions, necessitated
+                               by the undersea cable, create a place without a story of
+                               the cable itself, but making this land accessible for visitors to step
+                               upon. <br><br>Can one find this entrance to the internet when it was never
+                               meant to be found?
+                               <br>A place whose lack of stories becomes its story,
+                               <br>So globally vital, yet narratively empty.
+                               <br><br>Presented by a dedicated webpage performance hosting these
+layered digital-images, film and sonified electromagnetic
+waves collected from the undersea cable entrance point area.
+Using these fragmented elements to explore the grand network
+structure contrasts with a subtle feeling of displacement among
+tourists.
+It reveals the entanglement of bodies, signals,
+and systems through touch pad movement on a personal laptop.
+The act of reaching toward these infrastructures connecting our
+attention and reflection, becomes an attempt to narrate what was
+never meant to be found: a space suspended between presence
+and absence."
+                               
                     data-title="A Searched Entrance <br> -In the attempt to seek the undersea cable's portal" 
-                    data-desc="Performance | 2025">
+                    data-desc="Browser-based | Performance | 2025">
                     <h3>室内空间设计</h3>
                     <p>室内设计 · 2023</p>
                 </li>
@@ -682,6 +710,12 @@
         function isImage(url) {
             const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg'];
             return imageExtensions.some(ext => url.toLowerCase().endsWith(ext));
+        }
+
+        // 判断文件是否为视频
+        function isVideo(url) {
+            const videoExtensions = ['.mp4', '.webm', '.mov'];
+            return videoExtensions.some(ext => url.toLowerCase().endsWith(ext));
         }
 
         // 打开 Lightbox
@@ -789,7 +823,7 @@
                 return;
             }
 
-            // 添加所有文件（图片、PDF、文字块或轮播）
+            // 添加所有文件（图片、视频、PDF、文字块或轮播）
             images.forEach((fileSrc, index) => {
                 const wrapper = document.createElement('div');
                 wrapper.className = 'content-wrapper';
@@ -824,7 +858,6 @@
                     
                     wrapper.appendChild(textDiv);
                 } else if (fileSrc === 'SLIDER') {
-
                     // 创建轮播图
                     const sliderContainer = document.createElement('div');
                     sliderContainer.className = 'slider-container';
@@ -851,7 +884,7 @@
                      labelDiv.style.position = 'absolute';
                      labelDiv.style.bottom = '20px';
                      labelDiv.style.right = '30px';
-                     labelDiv.style.color = '#999999';           // 灰色
+                     labelDiv.style.color = '#999999';
                      labelDiv.style.fontSize = '14px';
                      labelDiv.style.fontFamily = "'Noto Serif SC', serif";
                      labelDiv.style.opacity = '0.7';
@@ -860,7 +893,6 @@
                      
                      sliderContainer.appendChild(labelDiv);
                      
-                     wrapper.appendChild(sliderContainer);
                     // 添加左右按钮
                     const prevBtn = document.createElement('button');
                     prevBtn.className = 'slider-nav slider-prev';
@@ -920,6 +952,27 @@
                         }
                     });
                     
+                } else if (isVideo(fileSrc)) {
+                    // 创建视频元素
+                    const video = document.createElement('video');
+                    video.src = fileSrc;
+                    video.autoplay = true;
+                    video.loop = true;
+                    video.muted = true;
+                    video.playsInline = true;
+                    video.style.maxWidth = '90%';
+                    video.style.height = 'auto';
+                    video.style.maxHeight = '80vh';
+                    video.style.borderRadius = '0';
+                    video.style.boxShadow = 'none';
+                    video.style.objectFit = 'contain';
+                    
+                    // 视频加载失败时隐藏
+                    video.onerror = function() {
+                        wrapper.style.display = 'none';
+                    };
+                    
+                    wrapper.appendChild(video);
                 } else if (isPDF(fileSrc)) {
                     // 创建PDF iframe
                     const iframe = document.createElement('iframe');
@@ -1012,7 +1065,7 @@
             });
         });
 
-        // 初始化 - 显示第一个作品
+        // 初始化 - 显示第二个作品
         displayAllImages(1);
     </script>
 </body>
