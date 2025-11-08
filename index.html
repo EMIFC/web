@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500&display=swap" rel="stylesheet">
+    <title>showcase</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            background: #000000;
+        }
+
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            z-index: 0;
+        }
+
+        /* 自定义滚动条样式 */
+        .main-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .main-content::-webkit-scrollbar-track {
+            background: rgba(12, 12, 12, 0.3);
+        }
+
+        .main-content::-webkit-scrollbar-thumb {
+            background: rgba(64, 43, 43, 0.6);
+            border-radius: 4px;
+        }
+
+        .main-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(160, 160, 160, 0.8);
+        }
+
+        .main-content {
+            scroll-behavior: smooth;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar {
+            width: 25%;
+            background: transparent;
+            color: #333;
+            padding: 30px 20px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .sidebar h1 {
+            font-size: 20px;
+            margin-left: 20px;
+            text-align: left;
+            font-weight: 600;
+            color: #8c8c8c;
+            font-family: 'Noto Serif';
+            font-weight: 1000;
+            letter-spacing: 1px;
+        }
+
+        .portfolio-list {
+            list-style: none;
+            position: relative;
+            height: 80vh;
+        }
+
+        .portfolio-item {
+            padding: 0;
+            margin: 0;
+            background: transparent;
+            border-radius: 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .portfolio-item:nth-child(1) {
+            top: 15%;
+            left: 20%;
+        }
+
+        .portfolio-item:nth-child(2) {
+            top: 25%;
+            left: 30%;
+        }
+
+        .portfolio-item:nth-child(3) {
+            top: 35%;
+            left: 30%;
+        }
+
+        .portfolio-item:nth-child(4) {
+            top:18%;
+            left: 55%;
+        }
+
+        .portfolio-item:nth-child(5) {
+            top: 30%;
+            left: 50%;
+        }
+
+        .portfolio-item::before {
+            content: '○';
+            font-size: 16px;
+            color: #ffffff;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .portfolio-item:hover::before {
+            color: #373030;
+            transform: none;
+        }
+
+        .portfolio-item.active::before {
+            content: '◉';
+            color: #ffffff;
+            transform: none;
+            text-shadow: none;
+        }
+
+        .portfolio-item h3,
+        .portfolio-item p {
+            display: none;
+        }
+
+        /* Tooltip on hover - removed */
+        .portfolio-item::after {
+            display: none;
+        }
+
+        .portfolio-item:hover::after {
+            display: none;
+        }
+
+        .main-content {
+            width: 75%;
+            background:transparent;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 40px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .image-container {
+            max-width: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding-top: 10px;
+            position: relative;
+        }
+
+        .image-wrapper {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .image-wrapper .click-area-left,
+        .image-wrapper .click-area-right {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 50%;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .image-wrapper .click-area-left {
+            left: 0;
+            cursor: w-resize;
+        }
+
+        .image-wrapper .click-area-right {
+            right: 0;
+            cursor: e-resize;
+        }
+
+        .nav-arrow {
+            display: none;
+        }
+
+        .image-counter {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            height: 80vh;
+            width: auto;
+            object-fit: contain;
+            border-radius: 0;
+            box-shadow: none;
+            transition: opacity 0.3s ease;
+        }
+
+        /* 图片轮播样式 */
+        .slider-container {
+            width: 90%;
+            position: relative;
+            overflow: hidden;
+            border-radius: 0;
+            background: transparent;
+        }
+
+        .slider-wrapper {
+            display: flex;
+            transition: transform 0.5s ease;
+            width: 100%;
+        }
+
+        .slider-image {
+            min-width: 100%;
+            height: 80vh;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+
+        .slider-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 24px;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .slider-nav:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .slider-prev {
+            left: 20px;
+        }
+
+        .slider-next {
+            right: 20px;
+        }
+
+        .slider-dots {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .slider-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .slider-dot.active {
+            background: #ffffff;
+            width: 30px;
+            border-radius: 5px;
+        }
+
+        /* PDF 显示样式 */
+        .pdf-container {
+            width: 90%;
+            height: 80vh;
+            border: none;
+            background: #ffffff;
+            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .pdf-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .content-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .image-info {
+            margin-top: 40px;
+            text-align: center;
+            max-width: 600px;
+            display: block;
+            padding-bottom: 40px;
+        }
+
+        .image-info h2 {
+            font-size: 32px;
+            color: #ffffff;
+            margin-bottom: 15px;
+        }
+
+        .image-info p {
+            font-size: 16px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .placeholder {
+            text-align: center;
+            color: #ffffff;
+        }
+
+        .placeholder svg {
+            width: 200px;
+            height: 200px;
+            opacity: 0.3;
+        }
+
+        .project-info {
+            position: absolute;
+            bottom: 30px;
+            left: 20px;
+            right: 20px;
+            font-size: 8px;
+            color: #ffffff;
+            line-height: 1.6;
+            font-family: 'Noto Serif SC', serif;
+            opacity: 0.8;
+        }
+
+        .project-info h3 {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #ffffff;
+        }
+
+        .project-info p {
+            font-size: 11px;
+            color: #ffffff;
+            line-height: 1.5;
+        }
+
+        /* 图片放大查看器 */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .lightbox.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .lightbox-content {
+            position: relative;
+            max-width: 95vw;
+            max-height: 95vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .lightbox-image {
+            max-width: 100%;
+            max-height: 95vh;
+            object-fit: contain;
+            box-shadow: 0 0 50px rgba(255, 255, 255, 0.1);
+            cursor: zoom-out;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 40px;
+            color: #ffffff;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 10px;
+            line-height: 1;
+            transition: all 0.3s ease;
+            z-index: 10000;
+        }
+
+        .lightbox-close:hover {
+            color: #999;
+            transform: rotate(90deg);
+        }
+
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 50px;
+            color: #ffffff;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            padding: 20px;
+            line-height: 1;
+            transition: all 0.3s ease;
+            user-select: none;
+            border-radius: 5px;
+        }
+
+        .lightbox-nav:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        .lightbox-prev {
+            left: 30px;
+        }
+
+        .lightbox-next {
+            right: 30px;
+        }
+
+        .lightbox-counter {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #ffffff;
+            font-size: 16px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px 20px;
+            border-radius: 20px;
+        }
+
+        .content-wrapper img {
+            cursor: zoom-in;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: 30vh;
+                padding: 20px;
+            }
+
+            .main-content {
+                width: 100%;
+                height: 70vh;
+                padding: 20px;
+            }
+
+            .sidebar h1 {
+                font-size: 22px;
+                margin-bottom: 15px;
+            }
+
+            .portfolio-item {
+                padding: 10px 15px;
+            }
+
+            .pdf-container {
+                width: 100%;
+                height: 70vh;
+            }
+
+            .lightbox-close {
+                top: 10px;
+                right: 10px;
+                font-size: 30px;
+            }
+
+            .lightbox-nav {
+                font-size: 30px;
+                padding: 15px;
+            }
+
+            .lightbox-prev {
+                left: 10px;
+            }
+
+            .lightbox-next {
+                right: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- 图片放大查看器 -->
+    <div class="lightbox" id="lightbox">
+        <button class="lightbox-close" id="lightboxClose">&times;</button>
+        <button class="lightbox-nav lightbox-prev" id="lightboxPrev">‹</button>
+        <div class="lightbox-content">
+            <img class="lightbox-image" id="lightboxImage" src="" alt="放大查看">
+        </div>
+        <button class="lightbox-nav lightbox-next" id="lightboxNext">›</button>
+        <div class="lightbox-counter" id="lightboxCounter"></div>
+    </div>
+
+    <div class="container">
+        <aside class="sidebar">
+            <h1>Li Xiaotong  李曉烔 </h1>
+            <p style="
+                font-size: 14px;
+                color: #797777;
+                margin-left: 20px;
+                margin-top: 3px;
+                font-family: 'Arial', sans-serif;
+                letter-spacing: 1px;
+                font-weight: 400;
+            ">Artist/ Filmmaker / Researcher 
+            <br><br>Working toward digital justice through geospatial and generative technologies</p>
+           
+            <ul class="portfolio-list" id="portfolioList">
+                <li class="portfolio-item active" 
+                    data-images='["img/land04.png", "img/land06.png", "/Users/lixt/Documents/portfolio_web/img/land08.png"]' 
+                    data-title="Bio" 
+                    data-desc="Li Xiaotong (b.1995, Guangzhou, China) is an artist, filmmaker and researcher currently based in Eindhoven, the Netherlands.
+                    <br>Graduated from Design Academy Eindhoven, with experience in UI design and film production, Li's research-based practice examines technological systems through structural analysis and moving image.
+                    <br><br><br>Exhibiton/Screenings/Residency
+                    <br><br>2025 Dutch Design Week, Design Academy Eindhoven Graduation Show, NL
+                    <br>2025 Melted Film Festival, Lab-1, NL
+                    <br>2024 Sakmez Film Festival, Clublokaal, Breda, NL
+                    <br>2024 Studio Technogeographies Showcase, Z33, Be
+                    <br>2023 Hackers & Designers Hopepunk: Reknitting Collective Infrastructures, NL
+                    <br>2023 Onomatopee HistoricALL! To A Lighter Internet with The Hmm, Eindhoven, NL
+                    <br>2023 Surrounding As Nature-curation, One Of The Many Rooms, Eindhoven, NL
+                    <br>2023 Studio Digtal Natives Showcase, De Fabriek, Eindhoven, NL
+                    <br>2022 On-Trade-Off: Charging Myths publication/performance, in collaboration with Pélagie Gbaguidi, Z33, Be">
+                    
+                </li>
+
+                <li class="portfolio-item" 
+                    data-images='["img/land04.png", "/img/p1_01.gif", "/img/research_map.jpg", "img/land02.png", "TEXT_BLOCK","SLIDER","TEXT_BLOCK_2"]' 
+                    data-slider='["img/p1_05.JPG","img/p1_06.JPG","img/p1_07.JPG"]'
+                    data-title="Land Tells by Default: on simulation, on war games, and the myth of neutrality " 
+                    data-text="Beneath the surface of the 'neutral' default map of simulation war games lies an engineered silence. <br>This essay film investigates this phenomenon within Digital Combat Simulation, a digital environment used both for leisure gaming and military training. From the abstract squares of Kriegsspiel to today's detailed simulations, the film examines how the quest for neutrality has evolved alongside war technologies.
+                             <br>The project critiques how DCS's default map removes ideological or emotionally charged elements and crafts objects that appear functional and culturally unreadable, attempting to give the context of war an appearance of objectivity and ethical distance. Using the game environment as research method, the film questions whether anything can remain truly neutral within a totality that is preset for combat.
+                             Through a blend of live footage and screen captures of the game world, the film explores the sensory boundaries of digital simulation. It challenges how objects evoke shifting memories and emotions while remaining unreadable and untouchable."
+                    
+                    data-desc="Essay Video | 14min | 2025  <br><br><br>Exhibitions and Screenings<br> 2025 Dutch Design Week Design Academy Eindhoven Graduation Show">
+                </li>
+                <li class="portfolio-item" 
+                    data-images='["img/p4_01.png", "img/p4_02.png", "img/p4_03.png"]' 
+                    data-title="Something Hasn't Been Well Served" 
+                    data-desc="Video | 1:20min | 2021">
+                    <h3>数字艺术作品</h3>
+                    <p>数字艺术 · 2023</p>
+                </li>
+                <li class="portfolio-item" 
+                    data-images='["img/p2_03.gif", "img/p2_02.jpeg", "img/p2_01.gif"]' 
+                    data-title="A Searched Entrance <br> -In the attempt to seek the undersea cable's portal" 
+                    data-desc="Performance | 2025">
+                    <h3>室内空间设计</h3>
+                    <p>室内设计 · 2023</p>
+                </li>
+                <li class="portfolio-item" 
+                    data-images='["img/p3_01.png", "img/p3_02.png"]' 
+                    data-title="Breath Practice: Reconstructing Bodily Agency" 
+                    data-desc="Music Video | 4min | 2023 <br><br><br>Exhibitions and Screenings<br> 2025 Dutch Design Week, Melted Film Festival <br>2024 Sakmez Film Festival <br> 2023 Studio Technogeographies Showcase, Z33, Belgium">
+                    <h3>摄影作品集</h3>
+                    <p>摄影 · 2023</p>
+                </li>
+                
+                
+            </ul>
+
+
+        <div class="project-info" id="projectInfo"></div>
+  
+        </aside>
+
+        <main class="main-content">
+            <div class="image-container" id="imageContainer">
+                <div class="image-wrapper">
+                    <div class="click-area-left" id="prevArea"></div>
+                    <img id="mainImage" src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800" alt="作品展示">
+                    <div class="click-area-right" id="nextArea"></div>
+                    <div class="image-counter" id="imageCounter">1 / 3</div>
+                </div>
+                <div class="image-info">
+                    <h2 id="imageTitle">现代建筑设计</h2>
+                    <p id="imageDesc">这是一个现代化的建筑设计项目，融合了简约与功能性。</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const portfolioItems = document.querySelectorAll('.portfolio-item');
+        const imageContainer = document.getElementById('imageContainer');
+        const mainContent = document.querySelector('.main-content');
+
+        // Lightbox 元素
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImage = document.getElementById('lightboxImage');
+        const lightboxClose = document.getElementById('lightboxClose');
+        const lightboxPrev = document.getElementById('lightboxPrev');
+        const lightboxNext = document.getElementById('lightboxNext');
+        const lightboxCounter = document.getElementById('lightboxCounter');
+
+        let currentProjectIndex = 0;
+        let currentImages = []; // 当前项目的所有图片
+        let currentLightboxIndex = 0; // lightbox中当前图片的索引
+
+        // 判断文件是否为PDF
+        function isPDF(url) {
+            return url.toLowerCase().endsWith('.pdf');
+        }
+
+        // 判断文件是否为图片
+        function isImage(url) {
+            const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg'];
+            return imageExtensions.some(ext => url.toLowerCase().endsWith(ext));
+        }
+
+        // 打开 Lightbox
+        function openLightbox(index) {
+            if (currentImages.length === 0) return;
+            
+            currentLightboxIndex = index;
+            lightboxImage.src = currentImages[currentLightboxIndex];
+            updateLightboxCounter();
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // 关闭 Lightbox
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // 更新 Lightbox 计数器
+        function updateLightboxCounter() {
+            if (currentImages.length > 1) {
+                lightboxCounter.textContent = `${currentLightboxIndex + 1} / ${currentImages.length}`;
+                lightboxCounter.style.display = 'block';
+            } else {
+                lightboxCounter.style.display = 'none';
+            }
+        }
+
+        // Lightbox 上一张
+        function showPrevImage() {
+            if (currentImages.length === 0) return;
+            currentLightboxIndex = (currentLightboxIndex - 1 + currentImages.length) % currentImages.length;
+            lightboxImage.src = currentImages[currentLightboxIndex];
+            updateLightboxCounter();
+        }
+
+        // Lightbox 下一张
+        function showNextImage() {
+            if (currentImages.length === 0) return;
+            currentLightboxIndex = (currentLightboxIndex + 1) % currentImages.length;
+            lightboxImage.src = currentImages[currentLightboxIndex];
+            updateLightboxCounter();
+        }
+
+        // Lightbox 事件监听
+        lightboxClose.addEventListener('click', closeLightbox);
+        lightboxPrev.addEventListener('click', showPrevImage);
+        lightboxNext.addEventListener('click', showNextImage);
+
+        // 点击背景关闭
+        lightbox.addEventListener('click', function(e) {
+            if (e.target === lightbox) {
+                closeLightbox();
+            }
+        });
+
+        // ESC键关闭
+        document.addEventListener('keydown', function(e) {
+            if (lightbox.classList.contains('active')) {
+                if (e.key === 'Escape') {
+                    closeLightbox();
+                } else if (e.key === 'ArrowLeft') {
+                    showPrevImage();
+                } else if (e.key === 'ArrowRight') {
+                    showNextImage();
+                }
+            }
+        });
+
+        function displayAllImages(projectIndex) {
+            currentProjectIndex = projectIndex;
+
+            // 移除所有active类
+            portfolioItems.forEach(i => i.classList.remove('active'));
+            
+            // 添加active类到当前项
+            portfolioItems[currentProjectIndex].classList.add('active');
+
+            // 获取数据
+            const imagesData = portfolioItems[currentProjectIndex].getAttribute('data-images');
+            const images = JSON.parse(imagesData);
+            const textBlock = portfolioItems[currentProjectIndex].getAttribute('data-text') || '';
+            const textBlock2 = portfolioItems[currentProjectIndex].getAttribute('data-text-2') || '';
+            const sliderData = portfolioItems[currentProjectIndex].getAttribute('data-slider');
+            const sliderImages = sliderData ? JSON.parse(sliderData) : [];
+            const title = portfolioItems[currentProjectIndex].getAttribute('data-title');
+            const desc = portfolioItems[currentProjectIndex].getAttribute('data-desc');
+
+            // 清空容器
+            imageContainer.innerHTML = '';
+            currentImages = [];
+            const projectInfo = document.getElementById('projectInfo');
+
+            // 如果是第一个圆点（Bio），在右边显示文字，左下角不显示
+            if (projectIndex === 0) {
+                imageContainer.innerHTML = `
+                    <div style="color: white; text-align: left; padding: 80px 30px; max-width: 900px;">
+                        <h1 style="font-size: 20px; margin-bottom: 5px; font-family: 'Noto Serif SC';">${title}</h1>
+                        <p style="font-size: 17px; line-height: 1.8; opacity: 0.9;">${desc}</p>
+                    </div>
+                `;
+                // 清空左下角
+                projectInfo.innerHTML = '';
+                return;
+            }
+
+            // 添加所有文件（图片、PDF、文字块或轮播）
+            images.forEach((fileSrc, index) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'content-wrapper';
+                wrapper.style.opacity = '0';
+                wrapper.style.transition = 'opacity 0.5s ease';
+                
+                // 检查是否是文字块标记
+                if (fileSrc === 'TEXT_BLOCK') {
+                    // 创建文字块
+                    const textDiv = document.createElement('div');
+                    textDiv.innerHTML = textBlock;
+                    textDiv.style.color = '#ffffff';
+                    textDiv.style.fontSize = '13px';
+                    textDiv.style.lineHeight = '1.8';
+                    textDiv.style.maxWidth = '1000px';
+                    textDiv.style.padding = '40px';
+                    textDiv.style.textAlign = 'left';
+                    textDiv.style.fontFamily = "'Noto Serif SC', serif";
+                    
+                    wrapper.appendChild(textDiv);
+                } else if (fileSrc === 'TEXT_BLOCK_2') {
+                    // 创建第二个文字块
+                    const textDiv = document.createElement('div');
+                    textDiv.innerHTML = textBlock2;
+                    textDiv.style.color = '#ffffff';
+                    textDiv.style.fontSize = '10px';
+                    textDiv.style.lineHeight = '1.8';
+                    textDiv.style.maxWidth = '500px';
+                    textDiv.style.padding = '20px';
+                    textDiv.style.textAlign = 'left';
+                    textDiv.style.fontFamily = "'Noto Serif SC', serif";
+                    
+                    wrapper.appendChild(textDiv);
+                } else if (fileSrc === 'SLIDER') {
+
+                    // 创建轮播图
+                    const sliderContainer = document.createElement('div');
+                    sliderContainer.className = 'slider-container';
+                    sliderContainer.style.position = 'relative';
+                    sliderContainer.style.height = '80vh';
+                    
+                    const sliderWrapper = document.createElement('div');
+                    sliderWrapper.className = 'slider-wrapper';
+                    
+                    // 添加所有轮播图片
+                    sliderImages.forEach((imgSrc, idx) => {
+                        const img = document.createElement('img');
+                        img.src = imgSrc;
+                        img.className = 'slider-image';
+                        img.alt = `${title} - 轮播 ${idx + 1}`;
+                        sliderWrapper.appendChild(img);
+                    });
+                    
+                    sliderContainer.appendChild(sliderWrapper);
+                    
+                     // 添加右下角文字标签
+                     const labelDiv = document.createElement('div');
+                     labelDiv.textContent = 'Exhibition Photos';
+                     labelDiv.style.position = 'absolute';
+                     labelDiv.style.bottom = '20px';
+                     labelDiv.style.right = '30px';
+                     labelDiv.style.color = '#999999';           // 灰色
+                     labelDiv.style.fontSize = '14px';
+                     labelDiv.style.fontFamily = "'Noto Serif SC', serif";
+                     labelDiv.style.opacity = '0.7';
+                     labelDiv.style.letterSpacing = '1px';
+                     labelDiv.style.zIndex = '10';
+                     
+                     sliderContainer.appendChild(labelDiv);
+                     
+                     wrapper.appendChild(sliderContainer);
+                    // 添加左右按钮
+                    const prevBtn = document.createElement('button');
+                    prevBtn.className = 'slider-nav slider-prev';
+                    prevBtn.innerHTML = '‹';
+                    
+                    const nextBtn = document.createElement('button');
+                    nextBtn.className = 'slider-nav slider-next';
+                    nextBtn.innerHTML = '›';
+                    
+                    sliderContainer.appendChild(prevBtn);
+                    sliderContainer.appendChild(nextBtn);
+                    
+                    // 添加圆点指示器
+                    const dotsContainer = document.createElement('div');
+                    dotsContainer.className = 'slider-dots';
+                    
+                    sliderImages.forEach((_, idx) => {
+                        const dot = document.createElement('div');
+                        dot.className = 'slider-dot' + (idx === 0 ? ' active' : '');
+                        dot.dataset.index = idx;
+                        dotsContainer.appendChild(dot);
+                    });
+                    
+                    sliderContainer.appendChild(dotsContainer);
+                    
+                    wrapper.appendChild(sliderContainer);
+                    
+                    // 轮播逻辑
+                    let currentSlide = 0;
+                    const totalSlides = sliderImages.length;
+                    
+                    function updateSlider() {
+                        sliderWrapper.style.transform = `translateX(-${currentSlide * 100}%)`;
+                        
+                        // 更新圆点
+                        const dots = dotsContainer.querySelectorAll('.slider-dot');
+                        dots.forEach((dot, idx) => {
+                            dot.classList.toggle('active', idx === currentSlide);
+                        });
+                    }
+                    
+                    prevBtn.addEventListener('click', () => {
+                        currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+                        updateSlider();
+                    });
+                    
+                    nextBtn.addEventListener('click', () => {
+                        currentSlide = (currentSlide + 1) % totalSlides;
+                        updateSlider();
+                    });
+                    
+                    // 点击圆点切换
+                    dotsContainer.addEventListener('click', (e) => {
+                        if (e.target.classList.contains('slider-dot')) {
+                            currentSlide = parseInt(e.target.dataset.index);
+                            updateSlider();
+                        }
+                    });
+                    
+                } else if (isPDF(fileSrc)) {
+                    // 创建PDF iframe
+                    const iframe = document.createElement('iframe');
+                    iframe.src = fileSrc;
+                    iframe.className = 'pdf-container';
+                    iframe.title = `${title} - PDF ${index + 1}`;
+                    
+                    // PDF加载失败时隐藏
+                    iframe.onerror = function() {
+                        wrapper.style.display = 'none';
+                    };
+                    
+                    wrapper.appendChild(iframe);
+                } else if (isImage(fileSrc)) {
+                    // 创建图片元素
+                    const img = document.createElement('img');
+                    img.src = fileSrc;
+                    img.alt = `${title} - 图片 ${index + 1}`;
+                    img.style.maxWidth = '90%';
+                    img.style.height = 'auto';
+                    img.style.borderRadius = '0';
+                    img.style.boxShadow = 'none';
+                    
+                    // 图片加载失败时隐藏
+                    img.onerror = function() {
+                        wrapper.style.display = 'none';
+                    };
+                    
+                    // 添加到当前图片数组（用于lightbox）
+                    const imageIndex = currentImages.length;
+                    currentImages.push(fileSrc);
+                    
+                    // 点击图片打开 Lightbox
+                    img.addEventListener('click', function() {
+                        openLightbox(imageIndex);
+                    });
+                    
+                    wrapper.appendChild(img);
+                } else {
+                    // 其他文件类型，尝试作为图片显示
+                    const img = document.createElement('img');
+                    img.src = fileSrc;
+                    img.alt = `${title} - 文件 ${index + 1}`;
+                    img.style.maxWidth = '90%';
+                    img.style.height = 'auto';
+                    img.style.borderRadius = '0';
+                    img.style.boxShadow = 'none';
+                    
+                    img.onerror = function() {
+                        wrapper.style.display = 'none';
+                    };
+                    
+                    // 添加到当前图片数组
+                    const imageIndex = currentImages.length;
+                    currentImages.push(fileSrc);
+                    
+                    // 点击图片打开 Lightbox
+                    img.addEventListener('click', function() {
+                        openLightbox(imageIndex);
+                    });
+                    
+                    wrapper.appendChild(img);
+                }
+                
+                imageContainer.appendChild(wrapper);
+
+                // 延迟显示动画
+                setTimeout(() => {
+                    wrapper.style.opacity = '1';
+                }, 100 * index);
+            });
+
+            // 滚动到顶部
+            mainContent.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+
+            // 更新左侧栏底部的项目信息
+            projectInfo.innerHTML = `
+                <h3>${title}</h3>
+                <p>${desc}</p>
+            `;
+        }
+
+        // 点击作品项 - 切换作品
+        portfolioItems.forEach((item, index) => {
+            item.addEventListener('click', function() {
+                displayAllImages(index);
+            });
+        });
+
+        // 初始化 - 显示第一个作品
+        displayAllImages(1);
+    </script>
+</body>
+</html>
