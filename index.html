@@ -324,6 +324,70 @@
             box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
         }
 
+        /* 全屏 PDF 阅读器 */
+        #pdfReaderModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #111;
+            z-index: 99999;
+            flex-direction: column;
+        }
+
+        #pdfReaderModal.open {
+            display: flex;
+        }
+
+        #pdfReaderFrame {
+            width: 100%;
+            flex: 1;
+            border: none;
+        }
+
+        #closePdfReader {
+            position: absolute;
+            top: 16px;
+            right: 24px;
+            z-index: 100001;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.18);
+            color: #fff;
+            font-size: 22px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            line-height: 1;
+            transition: background 0.2s;
+        }
+
+        #closePdfReader:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .read-essay-btn {
+            display: inline-block;
+            margin-top: 14px;
+            padding: 6px 14px;
+            font-size: 10px;
+            font-family: 'Noto Serif SC', serif;
+            letter-spacing: 1px;
+            color: #c8c7c7;
+            border: 1px solid rgba(200,199,199,0.35);
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .read-essay-btn:hover {
+            color: #fff;
+            border-color: rgba(255,255,255,0.7);
+            background: rgba(255,255,255,0.04);
+        }
+
         .pdf-wrapper {
             width: 100%;
             display: flex;
@@ -557,6 +621,12 @@
 </head>
 <body>
     
+    <!-- 全屏 PDF 阅读器 -->
+    <div id="pdfReaderModal">
+        <button id="closePdfReader" title="关闭">×</button>
+        <iframe id="pdfReaderFrame" src="" allowfullscreen></iframe>
+    </div>
+
     <!-- 图片放大查看器 -->
     <div class="lightbox" id="lightbox">
         <button class="lightbox-close" id="lightboxClose">&times;</button>
@@ -1073,6 +1143,67 @@
                 <h3>${title}</h3>
                 <p>${desc}</p>
             `;
+
+            // Land Tells by Default（index 1）：附加"阅读论文"按钮
+            if (projectIndex === 1) {
+                const btn = document.createElement('button');
+                btn.textContent = 'Read Essay';
+                btn.className = 'read-essay-btn';
+                btn.addEventListener('click', openPdfReader);
+                projectInfo.appendChild(btn);
+            }
+        }
+
+        // ── 全屏 PDF 阅读器 ──────────────────────────────────────────
+        // ★ 将此处替换为实际 PDF 文件路径
+        const ESSAY_PDF_URL = 'essay.pdf#toolbar=0&navpanes=0&scrollbar=0';
+
+        const pdfModal    = document.getElementById('pdfReaderModal');
+        const pdfFrame    = document.getElementById('pdfReaderFrame');
+        const closePdfBtn = document.getElementById('closePdfReader');
+
+        function openPdfReader() {
+            pdfFrame.src = ESSAY_PDF_URL;
+            pdfModal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+            enablePdfProtection();
+        }
+
+        function closePdfReader() {
+            pdfModal.classList.remove('open');
+            pdfFrame.src = '';
+            document.body.style.overflow = '';
+            disablePdfProtection();
+        }
+
+        closePdfBtn.addEventListener('click', closePdfReader);
+
+        // 禁用右键与常用保存/打印/调试快捷键
+        function pdfKeyGuard(e) {
+            if (e.key === 'Escape') {
+                closePdfReader();
+                return;
+            }
+            const blocked =
+                ((e.ctrlKey || e.metaKey) && ['s','p','u','a'].includes(e.key.toLowerCase())) ||
+                e.key === 'F12' ||
+                ((e.ctrlKey || e.metaKey) && e.shiftKey && ['i','j','c'].includes(e.key.toLowerCase()));
+            if (blocked) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        }
+
+        function pdfContextGuard(e) { e.preventDefault(); }
+
+        function enablePdfProtection() {
+            document.addEventListener('keydown',     pdfKeyGuard,     true);
+            document.addEventListener('contextmenu', pdfContextGuard, true);
+        }
+
+        function disablePdfProtection() {
+            document.removeEventListener('keydown',     pdfKeyGuard,     true);
+            document.removeEventListener('contextmenu', pdfContextGuard, true);
         }
 
         // 点击作品项 - 切换作品
