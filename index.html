@@ -695,6 +695,8 @@
                 <li class="portfolio-item" 
                     data-images='["img/land04.png", "img/p1_01.gif", "img/p1_03.jpg", "img/land02.png", "TEXT_BLOCK","SLIDER","TEXT_BLOCK_2"]' 
                     data-slider='["img/p1_05.JPG","img/p1_06.JPG","img/p1_07.JPG"]'
+                    data-pdf="pdf/unreadableland.pdf"
+                    data-pdf-hash="Unreadable_Land"
                     data-title="Land Tells by Default: on simulation, on war games, and the myth of neutrality " 
                     data-text="Beneath the surface of the 'neutral' default map of simulation war games lies an engineered silence. <br>This essay film investigates this phenomenon within Digital Combat Simulator, a digital environment used both for leisure gaming and military training. From the abstract squares of Kriegsspiel to today's detailed simulations, the film examines how the quest for neutrality has evolved alongside war technologies.
                              <br>The project critiques how DCS's default map removes ideological or emotionally charged elements and crafts objects that appear functional and culturally unreadable, attempting to give the context of war an appearance of objectivity and ethical distance. Using the game environment as research method, the film questions whether anything can remain truly neutral within a totality that is preset for combat.
@@ -882,13 +884,15 @@
             // 添加active类到当前项
             portfolioItems[currentProjectIndex].classList.add('active');
 
-            // 获取数据
+            // 获取数据（包括PDF）
             const imagesData = portfolioItems[currentProjectIndex].getAttribute('data-images');
             const images = JSON.parse(imagesData);
             const textBlock = portfolioItems[currentProjectIndex].getAttribute('data-text') || '';
             const textBlock2 = portfolioItems[currentProjectIndex].getAttribute('data-text-2') || '';
             const sliderData = portfolioItems[currentProjectIndex].getAttribute('data-slider');
             const sliderImages = sliderData ? JSON.parse(sliderData) : [];
+            const pdfUrl = portfolioItems[currentProjectIndex].getAttribute('data-pdf');
+            const pdfHash = portfolioItems[currentProjectIndex].getAttribute('data-pdf-hash');
             const title = portfolioItems[currentProjectIndex].getAttribute('data-title');
             const desc = portfolioItems[currentProjectIndex].getAttribute('data-desc');
 
@@ -1144,64 +1148,99 @@
                 <p>${desc}</p>
             `;
 
-            // Land Tells by Default（index 1）：附加"阅读论文"按钮
-            if (projectIndex === 1) {
+            // 如果有PDF，添加按钮
+            if (pdfUrl && pdfHash) {
                 const btn = document.createElement('button');
                 btn.textContent = 'Read Research Paper';
                 btn.className = 'read-essay-btn';
-                btn.addEventListener('click', openPdfReader);
+                btn.addEventListener('click', function() {
+                    openPdfReader(pdfUrl, pdfHash);
+                });
                 projectInfo.appendChild(btn);
             }
         }
 
-        // ── 全屏 PDF 阅读器（带URL分享功能）──────────────────────────────────────────
-        // ★ 将此处替换为实际 PDF 文件路径
-        const ESSAY_PDF_URL = 'pdf/unreadableland.pdf';
-
+        // ── 全屏 PDF 阅读器（支持多个PDF）──────────────────────────────────────────
+        
         const pdfModal    = document.getElementById('pdfReaderModal');
         const pdfFrame    = document.getElementById('pdfReaderFrame');
         const closePdfBtn = document.getElementById('closePdfReader');
 
-        function openPdfReader() {
-            // ★ 改变URL，添加 #pdf 标记
-            history.pushState(null, '', '#pdf');
+        let currentPdfUrl = '';
+        let currentPdfHash = '';
+
+        function openPdfReader(pdfUrl, pdfHash) {
+            currentPdfUrl = pdfUrl;
+            currentPdfHash = pdfHash;
             
-            pdfFrame.src = ESSAY_PDF_URL;
+            // 改变URL
+            history.pushState(null, '', '#' + pdfHash);
+            
+            pdfFrame.src = pdfUrl;
             pdfModal.classList.add('open');
             document.body.style.overflow = 'hidden';
             enablePdfProtection();
         }
 
         function closePdfReader() {
-            // ★ 移除URL中的 #pdf 标记
-            if (window.location.hash === '#pdf') {
+            // 移除URL中的hash
+            if (window.location.hash === '#' + currentPdfHash) {
                 history.pushState(null, '', window.location.pathname);
             }
             
             pdfModal.classList.remove('open');
             pdfFrame.src = '';
             document.body.style.overflow = '';
+            currentPdfUrl = '';
+            currentPdfHash = '';
             disablePdfProtection();
         }
 
         closePdfBtn.addEventListener('click', closePdfReader);
 
-        // ★ 监听浏览器前进/后退按钮
+        // 监听浏览器前进/后退按钮
         window.addEventListener('popstate', function() {
-            if (window.location.hash === '#pdf') {
-                openPdfReader();
+            const hash = window.location.hash.substring(1);
+            
+            if (hash) {
+                // 查找匹配hash的项目
+                portfolioItems.forEach((item, index) => {
+                    const itemHash = item.getAttribute('data-pdf-hash');
+                    const itemPdf = item.getAttribute('data-pdf');
+                    
+                    if (itemHash === hash && itemPdf) {
+                        displayAllImages(index);
+                        setTimeout(() => {
+                            openPdfReader(itemPdf, itemHash);
+                        }, 100);
+                    }
+                });
             } else {
                 if (pdfModal.classList.contains('open')) {
-                    closePdfReader();
+                    pdfFrame.src = '';
+                    pdfModal.classList.remove('open');
+                    document.body.style.overflow = '';
+                    disablePdfProtection();
                 }
             }
         });
 
-        // ★ 页面加载时检查URL，如果有 #pdf 就自动打开PDF
+        // 页面加载时检查URL
         window.addEventListener('load', function() {
-            if (window.location.hash === '#pdf') {
-                // 延迟一点打开，确保页面完全加载
-                setTimeout(openPdfReader, 300);
+            const hash = window.location.hash.substring(1);
+            
+            if (hash) {
+                portfolioItems.forEach((item, index) => {
+                    const itemHash = item.getAttribute('data-pdf-hash');
+                    const itemPdf = item.getAttribute('data-pdf');
+                    
+                    if (itemHash === hash && itemPdf) {
+                        displayAllImages(index);
+                        setTimeout(() => {
+                            openPdfReader(itemPdf, itemHash);
+                        }, 500);
+                    }
+                });
             }
         });
 
