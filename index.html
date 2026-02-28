@@ -398,6 +398,28 @@
             line-height: 1.5;
         }
 
+        /* PDF按钮样式 */
+        .pdf-button {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 12px;
+            font-family: 'Arial', sans-serif;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .pdf-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
         /* 图片放大查看器 */
         .lightbox {
             display: none;
@@ -625,6 +647,7 @@
                 <li class="portfolio-item" 
                     data-images='["img/land04.png", "img/p1_01.gif", "img/p1_03.jpg", "img/land02.png", "TEXT_BLOCK","SLIDER","TEXT_BLOCK_2"]' 
                     data-slider='["img/p1_05.JPG","img/p1_06.JPG","img/p1_07.JPG"]'
+                    data-pdf="pdf/land-tells-by-default.pdf"
                     data-title="Land Tells by Default: on simulation, on war games, and the myth of neutrality " 
                     data-text="Beneath the surface of the 'neutral' default map of simulation war games lies an engineered silence. <br>This essay film investigates this phenomenon within Digital Combat Simulator, a digital environment used both for leisure gaming and military training. From the abstract squares of Kriegsspiel to today's detailed simulations, the film examines how the quest for neutrality has evolved alongside war technologies.
                              <br>The project critiques how DCS's default map removes ideological or emotionally charged elements and crafts objects that appear functional and culturally unreadable, attempting to give the context of war an appearance of objectivity and ethical distance. Using the game environment as research method, the film questions whether anything can remain truly neutral within a totality that is preset for combat.
@@ -819,6 +842,7 @@
             const textBlock2 = portfolioItems[currentProjectIndex].getAttribute('data-text-2') || '';
             const sliderData = portfolioItems[currentProjectIndex].getAttribute('data-slider');
             const sliderImages = sliderData ? JSON.parse(sliderData) : [];
+            const pdfUrl = portfolioItems[currentProjectIndex].getAttribute('data-pdf');
             const title = portfolioItems[currentProjectIndex].getAttribute('data-title');
             const desc = portfolioItems[currentProjectIndex].getAttribute('data-desc');
 
@@ -827,7 +851,7 @@
             currentImages = [];
             const projectInfo = document.getElementById('projectInfo');
 
-            // 如果是第一个圆点（Bio），在右边显示文字，左下角不显示
+            // 如果是第一个圆点（Bio），在右边显示文字,左下角不显示
             if (projectIndex === 0) {
                 imageContainer.innerHTML = `
                     <div style="color: white; text-align: left; padding: 80px 30px; max-width: 900px;">
@@ -1069,10 +1093,19 @@
             });
 
             // 更新左侧栏底部的项目信息
-            projectInfo.innerHTML = `
+            let infoHTML = `
                 <h3>${title}</h3>
                 <p>${desc}</p>
             `;
+            
+            // 如果有PDF链接，添加按钮
+            if (pdfUrl) {
+                infoHTML += `
+                    <a href="${pdfUrl}" target="_blank" class="pdf-button">📄 Read PDF Online</a>
+                `;
+            }
+            
+            projectInfo.innerHTML = infoHTML;
         }
 
         // 点击作品项 - 切换作品
