@@ -1154,7 +1154,7 @@
             }
         }
 
-        // ── 全屏 PDF 阅读器 ──────────────────────────────────────────
+        // ── 全屏 PDF 阅读器（带URL分享功能）──────────────────────────────────────────
         // ★ 将此处替换为实际 PDF 文件路径
         const ESSAY_PDF_URL = 'pdf/unreadableland.pdf';
 
@@ -1163,6 +1163,9 @@
         const closePdfBtn = document.getElementById('closePdfReader');
 
         function openPdfReader() {
+            // ★ 改变URL，添加 #pdf 标记
+            history.pushState(null, '', '#pdf');
+            
             pdfFrame.src = ESSAY_PDF_URL;
             pdfModal.classList.add('open');
             document.body.style.overflow = 'hidden';
@@ -1170,6 +1173,11 @@
         }
 
         function closePdfReader() {
+            // ★ 移除URL中的 #pdf 标记
+            if (window.location.hash === '#pdf') {
+                history.pushState(null, '', window.location.pathname);
+            }
+            
             pdfModal.classList.remove('open');
             pdfFrame.src = '';
             document.body.style.overflow = '';
@@ -1177,6 +1185,25 @@
         }
 
         closePdfBtn.addEventListener('click', closePdfReader);
+
+        // ★ 监听浏览器前进/后退按钮
+        window.addEventListener('popstate', function() {
+            if (window.location.hash === '#pdf') {
+                openPdfReader();
+            } else {
+                if (pdfModal.classList.contains('open')) {
+                    closePdfReader();
+                }
+            }
+        });
+
+        // ★ 页面加载时检查URL，如果有 #pdf 就自动打开PDF
+        window.addEventListener('load', function() {
+            if (window.location.hash === '#pdf') {
+                // 延迟一点打开，确保页面完全加载
+                setTimeout(openPdfReader, 300);
+            }
+        });
 
         // 禁用右键与常用保存/打印/调试快捷键
         function pdfKeyGuard(e) {
